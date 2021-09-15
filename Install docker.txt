@@ -1,0 +1,50 @@
+#!/bin/bash
+#####################################################################
+# This is a small shell script that will execute the shell commands #
+# specified in the cmd[] array one by one, prompting before each    #
+# command.                                                          #
+# Use 'ESC' to exit the script, r|R to repeat the previous command, #
+# i to insert a new command or 'ENTER' to continue.                 #
+#####################################################################
+
+# Module 1a - Install Docker - run this script as root!
+# It will install docker onto your machine.
+
+#!/bin/bash
+
+# define colors
+RED='\033[0;31m'
+GREEN='\033[1;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+PROMPT='#'
+
+#declare the commands here
+declare -a cmd=('# Are you running as root...? if not <ESC>'
+				'apt update'
+				'# install docker'
+				'apt install -y conntrack socat docker.io=17.12.1-0ubuntu1'
+				'apt-mark hold docker.io'
+				'systemctl enable --now docker'
+				'# End of Module 1a'
+                )
+
+for i in "${cmd[@]}"
+do
+	while true; do
+		m=$(echo $USER@$(hostname):$(pwd)$PROMPT)
+		printf "${GREEN}$m ${YELLOW}$i${NC}"
+		read -s -n 1 key
+		case $key in
+			$'\e') printf "\n${RED}ESC received, Aborting script here!\n${NC}"; exit 1;;
+			"") break;;
+			r|R ) printf "\nRepeating previous command: ${YELLOW}$p${NC}\n"; eval $p;;
+			i|I ) printf "\nInsert command: \n"; read -p $m cvar; printf "${NC}\n";eval $cvar;;
+			*) printf "\n${YELLOW}<ESC> = abort script; <ENTER> = execute current command; <r> = repeat previous command; <i> = insert command${NC}\n";;
+		esac
+	done
+	printf "\n"
+	eval $i
+	p=$i
+done
