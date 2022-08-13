@@ -316,7 +316,7 @@ A good resources here (and for many other things) is the kubectl-cheat-sheet. Yo
 ```
 # /opt/course/5/find_pods.sh
 kubectl get pod -A --sort-by=.metadata.creationTimestamp
-``
+```
 And to execute:
 ```
 ➜ sh /opt/course/5/find_pods.sh
