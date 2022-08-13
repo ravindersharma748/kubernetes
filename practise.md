@@ -16,103 +16,112 @@ export now="--force --grace-period 0"   # k delete pod x $now
 
 The following settings will already be configured in your real exam environment in ~/.vimrc. But it can never hurt to be able to type these down:
 
+```
 set tabstop=2
 set expandtab
 set shiftwidth=2
-More setup suggestions are in the tips section.
+```
+
+More setup suggestions are in the ### tips section.
 
  
 
  
 
-Question 1 | Contexts
+### Question 1 | Contexts
 Task weight: 1%
+ 
+
+You have access to multiple clusters from your main terminal through ```kubectl``` contexts. Write all those context names into ```/opt/course/1/contexts```.
+
+Next write a command to display the current context into ```/opt/course/1/context_default_kubectl.sh```, the command should use ```kubectl```.
+
+Finally write a second command doing the same thing into ```/opt/course/1/context_default_no_kubectl.sh```, but without the use of ```kubectl```.
 
  
 
-You have access to multiple clusters from your main terminal through kubectl contexts. Write all those context names into /opt/course/1/contexts.
-
-Next write a command to display the current context into /opt/course/1/context_default_kubectl.sh, the command should use kubectl.
-
-Finally write a second command doing the same thing into /opt/course/1/context_default_no_kubectl.sh, but without the use of kubectl.
-
- 
-
-Answer:
+### Answer:
 Maybe the fastest way is just to run:
-
+```
 k config get-contexts # copy manually
 
 k config get-contexts -o name > /opt/course/1/contexts
+```
 Or using jsonpath:
-
+```
 k config view -o yaml # overview
 k config view -o jsonpath="{.contexts[*].name}"
 k config view -o jsonpath="{.contexts[*].name}" | tr " " "\n" # new lines
 k config view -o jsonpath="{.contexts[*].name}" | tr " " "\n" > /opt/course/1/contexts 
+```
 The content should then look like:
 
+```
 # /opt/course/1/contexts
 k8s-c1-H
 k8s-c2-AC
 k8s-c3-CCC
+```
 Next create the first command:
-
+```
 # /opt/course/1/context_default_kubectl.sh
 kubectl config current-context
 ➜ sh /opt/course/1/context_default_kubectl.sh
 k8s-c1-H
+```
 And the second one:
-
+```
 # /opt/course/1/context_default_no_kubectl.sh
 cat ~/.kube/config | grep current
 ➜ sh /opt/course/1/context_default_no_kubectl.sh
 current-context: k8s-c1-H
+```
+
 In the real exam you might need to filter and find information from bigger lists of resources, hence knowing a little jsonpath and simple bash filtering will be helpful.
 
 The second command could also be improved to:
-
+```
 # /opt/course/1/context_default_no_kubectl.sh
 cat ~/.kube/config | grep current | sed -e "s/current-context: //"
- 
+``` 
 
- 
-
-Question 2 | Schedule Pod on Master Node
+### Question 2 | Schedule Pod on Master Node
 Task weight: 3%
 
  
 
-Use context: kubectl config use-context k8s-c1-H
+Use context: ``` kubectl config use-context k8s-c1-H ```
 
  
 
-Create a single Pod of image httpd:2.4.41-alpine in Namespace default. The Pod should be named pod1 and the container should be named pod1-container. This Pod should only be scheduled on a master node, do not add new labels any nodes.
+Create a single Pod of image ```httpd:2.4.41-alpine``` in Namespace ```default```. The Pod should be named ```pod1``` and the container should be named ```pod1-container```. This Pod should only be scheduled on a master node, do not add new labels any nodes.
 
  
 
-Answer:
+### Answer:
 First we find the master node(s) and their taints:
 
+```
 k get node # find master node
 
 k describe node cluster1-master1 | grep Taint -A1 # get master node taints
 
 k get node cluster1-master1 --show-labels # get master node labels
- 
+``` 
 
 NOTE: In K8s 1.24 master/controlplane nodes have two Taints which means we have to add Tolerations for both. This is done during transitioning from the wording "master" to "controlplane".
 
  
 
 Next we create the Pod template:
-
+```
 # check the export on the very top of this document so we can use $do
 k run pod1 --image=httpd:2.4.41-alpine $do > 2.yaml
 
 vim 2.yaml
+```
 Perform the necessary changes manually. Use the Kubernetes docs and search for example for tolerations and nodeSelector to find examples:
-
+```
 # 2.yaml
 apiVersion: v1
 kind: Pod
@@ -136,89 +145,93 @@ spec:
   nodeSelector:                                # add
     node-role.kubernetes.io/control-plane: ""  # add
 status: {}
+```
 Important here to add the toleration for running on master nodes, but also the nodeSelector to make sure it only runs on master nodes. If we only specify a toleration the Pod can be scheduled on master or worker nodes.
 
 Now we create it:
-
+```
 k -f 2.yaml create
+```
 Let's check if the pod is scheduled:
-
+```
 ➜ k get pod pod1 -o wide
 NAME   READY   STATUS    RESTARTS   ...    NODE               NOMINATED NODE
 pod1   1/1     Running   0          ...    cluster1-master1   <none>        
- 
+``` 
 
  
 
-Question 3 | Scale down StatefulSet
+### Question 3 | Scale down StatefulSet
 Task weight: 1%
 
  
 
-Use context: kubectl config use-context k8s-c1-H
+Use context: ```kubectl config use-context k8s-c1-H```
 
  
 
-There are two Pods named o3db-* in Namespace project-c13. C13 management asked you to scale the Pods down to one replica to save resources.
+There are two Pods named ```o3db-*``` in Namespace ```project-c13```. C13 management asked you to scale the Pods down to one replica to save resources.
 
  
 
-Answer:
+### Answer:
 If we check the Pods we see two replicas:
-
+```
 ➜ k -n project-c13 get pod | grep o3db
 o3db-0                                  1/1     Running   0          52s
 o3db-1                                  1/1     Running   0          42s
+```
 From their name it looks like these are managed by a StatefulSet. But if we're not sure we could also check for the most common resources which manage Pods:
-
+```
 ➜ k -n project-c13 get deploy,ds,sts | grep o3db
 statefulset.apps/o3db   2/2     2m56s
+```
 Confirmed, we have to work with a StatefulSet. To find this out we could also look at the Pod labels:
-
+```
 ➜ k -n project-c13 get pod --show-labels | grep o3db
 o3db-0                                  1/1     Running   0          3m29s   app=nginx,controller-revision-hash=o3db-5fbd4bb9cc,statefulset.kubernetes.io/pod-name=o3db-0
 o3db-1                                  1/1     Running   0          3m19s   app=nginx,controller-revision-hash=o3db-5fbd4bb9cc,statefulset.kubernetes.io/pod-name=o3db-1
+```
 To fulfil the task we simply run:
-
+```
 ➜ k -n project-c13 scale sts o3db --replicas 1
 statefulset.apps/o3db scaled
 
 ➜ k -n project-c13 get sts o3db
 NAME   READY   AGE
 o3db   1/1     4m39s
+```
 C13 Mangement is happy again.
 
- 
 
- 
-
-Question 4 | Pod Ready if Service is reachable
+### Question 4 | Pod Ready if Service is reachable
 Task weight: 4%
 
  
 
-Use context: kubectl config use-context k8s-c1-H
+Use context: ```kubectl config use-context k8s-c1-H```
 
  
 
-Do the following in Namespace default. Create a single Pod named ready-if-service-ready of image nginx:1.16.1-alpine. Configure a LivenessProbe which simply runs true. Also configure a ReadinessProbe which does check if the url http://service-am-i-ready:80 is reachable, you can use wget -T2 -O- http://service-am-i-ready:80 for this. Start the Pod and confirm it isn't ready because of the ReadinessProbe.
+Do the following in Namespace default. Create a single Pod named ready-if-service-ready of image ```nginx:1.16.1-alpine```. Configure a LivenessProbe which simply runs true. Also configure a ReadinessProbe which does check if the url ```http://service-am-i-ready:80``` is reachable, you can use ``wget -T2 -O- http://service-am-i-ready:80``` for this. Start the Pod and confirm it isn't ready because of the ReadinessProbe.
 
-Create a second Pod named am-i-ready of image nginx:1.16.1-alpine with label id: cross-server-ready. The already existing Service service-am-i-ready should now have that second Pod as endpoint.
+Create a second Pod named ``am-i-ready``` of image ```nginx:1.16.1-alpine``` with label id: ```cross-server-ready```. The already existing Service ```service-am-i-ready``` should now have that second Pod as endpoint.
 
 Now the first Pod should be in ready state, confirm that.
 
  
 
-Answer:
+### Answer:
 It's a bit of an anti-pattern for one Pod to check another Pod for being ready using probes, hence the normally available readinessProbe.httpGet doesn't work for absolute remote urls. Still the workaround requested in this task should show how probes and Pod<->Service communication works.
 
 First we create the first Pod:
-
+```
 k run ready-if-service-ready --image=nginx:1.16.1-alpine $do > 4_pod1.yaml
 
 vim 4_pod1.yaml
+```
 Next perform the necessary additions manually:
-
+```
 # 4_pod1.yaml
 apiVersion: v1
 kind: Pod
@@ -245,32 +258,38 @@ spec:
   dnsPolicy: ClusterFirst
   restartPolicy: Always
 status: {}
+```
 Then create the Pod:
-
+```
 k -f 4_pod1.yaml create
+```
 And confirm its in a non-ready state:
-
+```
 ➜ k get pod ready-if-service-ready
 NAME                     READY   STATUS    RESTARTS   AGE
 ready-if-service-ready   0/1     Running   0          7s
+```
 We can also check the reason for this using describe:
-
+```
 ➜ k describe pod ready-if-service-ready
  ...
   Warning  Unhealthy  18s   kubelet, cluster1-worker1  Readiness probe failed: Connecting to service-am-i-ready:80 (10.109.194.234:80)
 wget: download timed out
+```
 Now we create the second Pod:
-
+```
 k run am-i-ready --image=nginx:1.16.1-alpine --labels="id=cross-server-ready"
 The already existing Service service-am-i-ready should now have an Endpoint:
 
 k describe svc service-am-i-ready
 k get ep # also possible
+```
 Which will result in our first Pod being ready, just give it a minute for the Readiness probe to check again:
-
+```
 ➜ k get pod ready-if-service-ready
 NAME                     READY   STATUS    RESTARTS   AGE
 ready-if-service-ready   1/1     Running   0          53s
+```
 Look at these Pods coworking together!
 
  
