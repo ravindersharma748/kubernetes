@@ -2,12 +2,18 @@
 # Pre Setup
 ## Once you've gained access to your terminal it might be wise to spend ~1 minute to setup your environment. You could set these:
 
+```
+
 alias k=kubectl                         # will already be pre-configured
 
 export do="--dry-run=client -o yaml"    # k create deploy nginx --image=nginx $do
 
 export now="--force --grace-period 0"   # k delete pod x $now
-Vim
+
+```
+
+## Vim
+
 The following settings will already be configured in your real exam environment in ~/.vimrc. But it can never hurt to be able to type these down:
 
 set tabstop=2
