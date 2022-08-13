@@ -296,7 +296,7 @@ Look at these Pods coworking together!
 
  
 
-###Question 5 | Kubectl sorting
+### Question 5 | Kubectl sorting
 Task weight: 1%
 
  
@@ -353,18 +353,20 @@ Use context: `kubectl config use-context k8s-c1-H`
 
  
 
-Create a new PersistentVolume named `safari-pv`. It should have a capacity of 2Gi, accessMode ReadWriteOnce, hostPath /Volumes/Data and no storageClassName defined.
+Create a new PersistentVolume named `safari-pv`. It should have a capacity of 2Gi, accessMode `ReadWriteOnce`, hostPath `/Volumes/Data` and no storageClassName defined.
 
-Next create a new PersistentVolumeClaim in Namespace project-tiger named safari-pvc . It should request 2Gi storage, accessMode ReadWriteOnce and should not define a storageClassName. The PVC should bound to the PV correctly.
+Next create a new PersistentVolumeClaim in Namespace `project-tiger` named `safari-pvc` . It should request 2Gi storage, accessMode `ReadWriteOnce` and should not define a storageClassName. The PVC should bound to the PV correctly.
 
-Finally create a new Deployment safari in Namespace project-tiger which mounts that volume at /tmp/safari-data. The Pods of that Deployment should be of image httpd:2.4.41-alpine.
+Finally create a new Deployment `safari` in Namespace `project-tiger` which mounts that volume at `/tmp/safari-data`. The Pods of that Deployment should be of image `httpd:2.4.41-alpine`.
 
  
 
-Answer
+### Answer
+```
 vim 6_pv.yaml
+```
 Find an example from https://kubernetes.io/docs and alter it:
-
+```
 # 6_pv.yaml
 kind: PersistentVolume
 apiVersion: v1
@@ -377,14 +379,18 @@ spec:
   - ReadWriteOnce
  hostPath:
   path: "/Volumes/Data"
+```
+  
 Then create it:
-
+```
 k -f 6_pv.yaml create
+```
 Next the PersistentVolumeClaim:
-
+```
 vim 6_pvc.yaml
+```
 Find an example from https://kubernetes.io/docs and alter it:
-
+```
 # 6_pvc.yaml
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -397,25 +403,29 @@ spec:
   resources:
     requests:
      storage: 2Gi
+```
 Then create:
-
+```
 k -f 6_pvc.yaml create
+```
 And check that both have the status Bound:
-
+```
 ➜ k -n project-tiger get pv,pvc
 NAME                         CAPACITY  ... STATUS   CLAIM                    ...
 persistentvolume/safari-pv   2Gi       ... Bound    project-tiger/safari-pvc ...
 
 NAME                               STATUS   VOLUME      CAPACITY ...
 persistentvolumeclaim/safari-pvc   Bound    safari-pv   2Gi      ...
+```
 Next we create a Deployment and mount that volume:
-
+```
 k -n project-tiger create deploy safari \
   --image=httpd:2.4.41-alpine $do > 6_dep.yaml
 
 vim 6_dep.yaml
+```
 Alter the yaml to mount the volume:
-
+```
 # 6_dep.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -448,36 +458,33 @@ spec:
         - name: data                                # add
           mountPath: /tmp/safari-data               # add
 k -f 6_dep.yaml create
+```
 We can confirm its mounting correctly:
-
+```
 ➜ k -n project-tiger describe pod safari-5cbf46d6d-mjhsb  | grep -A2 Mounts:   
     Mounts:
       /tmp/safari-data from data (rw) # there it is
       /var/run/secrets/kubernetes.io/serviceaccount from default-token-n2sjj (ro)
  
-
+```
  
 
-Question 7 | Node and Pod Resource Usage
+### Question 7 | Node and Pod Resource Usage
 Task weight: 1%
 
- 
-
-Use context: kubectl config use-context k8s-c1-H
-
- 
+Use context: `kubectl config use-context k8s-c1-H`
 
 The metrics-server has been installed in the cluster. Your college would like to know the kubectl commands to:
 
 show Nodes resource usage
 show Pods and their containers resource usage
-Please write the commands into /opt/course/7/node.sh and /opt/course/7/pod.sh.
+Please write the commands into `/opt/course/7/node.sh` and `/opt/course/7/pod.sh`.
 
  
 
-Answer:
+### Answer:
 The command we need to use here is top:
-
+```
 ➜ k top -h
 Display Resource (CPU/Memory/Storage) usage.
 
@@ -488,15 +495,17 @@ Display Resource (CPU/Memory/Storage) usage.
 Available Commands:
   node        Display Resource (CPU/Memory/Storage) usage of nodes
   pod         Display Resource (CPU/Memory/Storage) usage of pods
+```  
 We see that the metrics server provides information about resource usage:
-
+```
 ➜ k top node
 NAME               CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%   
 cluster1-master1   178m         8%     1091Mi          57%       
 cluster1-worker1   66m          6%     834Mi           44%       
 cluster1-worker2   91m          9%     791Mi           41% 
+```
 We create the first file:
-
+```
 # /opt/course/7/node.sh
 kubectl top node
 For the second file we might need to check the docs again:
@@ -508,27 +517,28 @@ Namespace in current context is ignored even if specified with --namespace.
       --containers=false: If present, print usage of containers within a pod.
       --no-headers=false: If present, print output without headers.
 ...
+```
 With this we can finish this task:
-
+```
 # /opt/course/7/pod.sh
 kubectl top pod --containers=true
- 
+``` 
 
  
 
-Question 8 | Get Master Information
+### Question 8 | Get Master Information
 Task weight: 2%
 
  
 
-Use context: kubectl config use-context k8s-c1-H
+Use context: `kubectl config use-context k8s-c1-H`
 
  
 
-Ssh into the master node with ssh cluster1-master1. Check how the master components kubelet, kube-apiserver, kube-scheduler, kube-controller-manager and etcd are started/installed on the master node. Also find out the name of the DNS application and how it's started/installed on the master node.
+Ssh into the master node with `ssh cluster1-master1`. Check how the master components `kubelet`, `kube-apiserver`, `kube-scheduler`, `kube-controller-manager` and `etcd` are started/installed on the master node. Also find out the name of the DNS application and how it's started/installed on the master node.
 
-Write your findings into file /opt/course/8/master-components.txt. The file should be structured like:
-
+Write your findings into file `/opt/course/8/master-components.txt`. The file should be structured like:
+```
 # /opt/course/8/master-components.txt
 kubelet: [TYPE]
 kube-apiserver: [TYPE]
@@ -537,25 +547,26 @@ kube-controller-manager: [TYPE]
 etcd: [TYPE]
 dns: [TYPE] [NAME]
 Choices of [TYPE] are: not-installed, process, static-pod, pod
+```
 
- 
-
-Answer:
+### Answer:
 We could start by finding processes of the requested components, especially the kubelet at first:
-
+```
 ➜ ssh cluster1-master1
 
 root@cluster1-master1:~# ps aux | grep kubelet # shows kubelet process
+```
 We can see which components are controlled via systemd looking at /etc/systemd/system directory:
-
+```
 ➜ root@cluster1-master1:~# find /etc/systemd/system/ | grep kube
 /etc/systemd/system/kubelet.service.d
 /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 /etc/systemd/system/multi-user.target.wants/kubelet.service
 
 ➜ root@cluster1-master1:~# find /etc/systemd/system/ | grep etcd
+```
 This shows kubelet is controlled via systemd, but no other service named kube nor etcd. It seems that this cluster has been setup using kubeadm, so we check in the default manifests directory:
-
+```
 ➜ root@cluster1-master1:~# find /etc/kubernetes/manifests/
 /etc/kubernetes/manifests/
 /etc/kubernetes/manifests/kube-controller-manager.yaml
@@ -563,9 +574,9 @@ This shows kubelet is controlled via systemd, but no other service named kube no
 /etc/kubernetes/manifests/kube-apiserver.yaml
 /etc/kubernetes/manifests/kube-scheduler.yaml
 (The kubelet could also have a different manifests directory specified via parameter --pod-manifest-path in it's systemd startup config)
-
+```
 This means the main 4 master services are setup as static Pods. Actually, let's check all Pods running on in the kube-system Namespace on the master node:
-
+```
 ➜ root@cluster1-master1:~# kubectl -n kube-system get pod -o wide | grep master1
 coredns-5644d7b6d9-c4f68                   1/1     Running            ...   cluster1-master1
 coredns-5644d7b6d9-t84sc                   1/1     Running            ...   cluster1-master1
@@ -575,10 +586,11 @@ kube-controller-manager-cluster1-master1   1/1     Running            ...   clus
 kube-proxy-q955p                           1/1     Running            ...   cluster1-master1
 kube-scheduler-cluster1-master1            1/1     Running            ...   cluster1-master1
 weave-net-mwj47                            2/2     Running            ...   cluster1-master1
+```
 There we see the 5 static pods, with -cluster1-master1 as suffix.
 
 We also see that the dns application seems to be coredns, but how is it controlled?
-
+```
 ➜ root@cluster1-master1$ kubectl -n kube-system get ds
 NAME         DESIRED   CURRENT   ...   NODE SELECTOR            AGE
 kube-proxy   3         3         ...   kubernetes.io/os=linux   155m
@@ -587,8 +599,9 @@ weave-net    3         3         ...   <none>                   155m
 ➜ root@cluster1-master1$ kubectl -n kube-system get deploy
 NAME      READY   UP-TO-DATE   AVAILABLE   AGE
 coredns   2/2     2            2           155m
+```
 Seems like coredns is controlled via a Deployment. We combine our findings in the requested file:
-
+```
 # /opt/course/8/master-components.txt
 kubelet: process
 kube-apiserver: static-pod
@@ -596,35 +609,27 @@ kube-scheduler: static-pod
 kube-controller-manager: static-pod
 etcd: static-pod
 dns: pod coredns
+```
 You should be comfortable investigating a running cluster, know different methods on how a cluster and its services can be setup and be able to troubleshoot and find error sources.
 
- 
-
- 
-
-Question 9 | Kill Scheduler, Manual Scheduling
+### Question 9 | Kill Scheduler, Manual Scheduling
 Task weight: 5%
 
- 
-
-Use context: kubectl config use-context k8s-c2-AC
+Use context: `kubectl config use-context k8s-c2-AC`
 
  
+Ssh into the master node with `ssh cluster2-master1`. Temporarily stop the `kube-scheduler`, this means in a way that you can start it again afterwards.
 
-Ssh into the master node with ssh cluster2-master1. Temporarily stop the kube-scheduler, this means in a way that you can start it again afterwards.
+Create a single Pod named `manual-schedule` of image `httpd:2.4-alpine`, confirm its created but not scheduled on any node.
 
-Create a single Pod named manual-schedule of image httpd:2.4-alpine, confirm its created but not scheduled on any node.
+Now you're the scheduler and have all its power, manually schedule that Pod on node `cluster2-master1`. Make sure it's running.
 
-Now you're the scheduler and have all its power, manually schedule that Pod on node cluster2-master1. Make sure it's running.
+Start the kube-scheduler again and confirm its running correctly by creating a second Pod named `manual-schedule2` of image `httpd:2.4-alpine` and check if it's running on `cluster2-worker1`.
 
-Start the kube-scheduler again and confirm its running correctly by creating a second Pod named manual-schedule2 of image httpd:2.4-alpine and check if it's running on cluster2-worker1.
-
- 
-
-Answer:
+### Answer:
 Stop the Scheduler
 First we find the master node:
-
+```
 ➜ k get node
 NAME               STATUS   ROLES    AGE   VERSION
 cluster2-master1   Ready    master   26h   v1.24.1
@@ -645,23 +650,26 @@ And it should be stopped:
 ➜ root@cluster2-master1:~# kubectl -n kube-system get pod | grep schedule
 
 ➜ root@cluster2-master1:~# 
- 
+ ```
 
 Create a Pod
 Now we create the Pod:
-
+```
 k run manual-schedule --image=httpd:2.4-alpine
+```
 And confirm it has no node assigned:
-
+```
 ➜ k get pod manual-schedule -o wide
 NAME              READY   STATUS    ...   NODE     NOMINATED NODE
 manual-schedule   0/1     Pending   ...   <none>   <none>        
- 
+``` 
 
 Manually schedule the Pod
 Let's play the scheduler now:
-
+```
 k get pod manual-schedule -o yaml > 9.yaml
+```
+``` 
 # 9.yaml
 apiVersion: v1
 kind: Pod
@@ -694,29 +702,31 @@ spec:
       readOnly: true
   dnsPolicy: ClusterFirst
 ...
-
+```
 The only thing a scheduler does, is that it sets the nodeName for a Pod declaration. How it finds the correct node to schedule on, that's a very much complicated matter and takes many variables into account.
 
 As we cannot kubectl apply or kubectl edit , in this case we need to delete and create or replace:
-
+```
 k -f 9.yaml replace --force
+```
 How does it look?
-
+```
 ➜ k get pod manual-schedule -o wide
 NAME              READY   STATUS    ...   NODE            
 manual-schedule   1/1     Running   ...   cluster2-master1
+```
 It looks like our Pod is running on the master now as requested, although no tolerations were specified. Only the scheduler takes tains/tolerations/affinity into account when finding the correct node name. That's why its still possible to assign Pods manually directly to a master node and skip the scheduler.
 
- 
-
 Start the scheduler again
+``` 
 ➜ ssh cluster2-master1
 
 ➜ root@cluster2-master1:~# cd /etc/kubernetes/manifests/
 
 ➜ root@cluster2-master1:~# mv ../kube-scheduler.yaml .
+```
 Checks its running:
-
+```
 ➜ root@cluster2-master1:~# kubectl -n kube-system get pod | grep schedule
 kube-scheduler-cluster2-master1            1/1     Running   0          16s
 Schedule a second test Pod:
@@ -725,26 +735,17 @@ k run manual-schedule2 --image=httpd:2.4-alpine
 ➜ k get pod -o wide | grep schedule
 manual-schedule    1/1     Running   ...   cluster2-master1
 manual-schedule2   1/1     Running   ...   cluster2-worker1
+```
 Back to normal.
 
- 
-
- 
-
-Question 10 | RBAC ServiceAccount Role RoleBinding
+### Question 10 | RBAC ServiceAccount Role RoleBinding
 Task weight: 6%
 
- 
+Use context: `kubectl config use-context k8s-c1-H`
 
-Use context: kubectl config use-context k8s-c1-H
+Create a new ServiceAccount `processor` in Namespace `project-hamster`. Create a Role and RoleBinding, both named `processor` as well. These should allow the new SA to only create Secrets and ConfigMaps in that Namespace.
 
- 
-
-Create a new ServiceAccount processor in Namespace project-hamster. Create a Role and RoleBinding, both named processor as well. These should allow the new SA to only create Secrets and ConfigMaps in that Namespace.
-
- 
-
-Answer:
+### Answer:
 Let's talk a little about RBAC resources
 A ClusterRole|Role defines a set of permissions and where it is available, in the whole cluster or just a single Namespace.
 
