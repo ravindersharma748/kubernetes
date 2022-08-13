@@ -32,11 +32,11 @@ More setup suggestions are in the ### tips section.
 Task weight: 1%
  
 
-You have access to multiple clusters from your main terminal through ```kubectl``` contexts. Write all those context names into ```/opt/course/1/contexts```.
+You have access to multiple clusters from your main terminal through `kubectl` contexts. Write all those context names into `/opt/course/1/contexts`.
 
-Next write a command to display the current context into ```/opt/course/1/context_default_kubectl.sh```, the command should use ```kubectl```.
+Next write a command to display the current context into `/opt/course/1/context_default_kubectl.sh`, the command should use `kubectl`.
 
-Finally write a second command doing the same thing into ```/opt/course/1/context_default_no_kubectl.sh```, but without the use of ```kubectl```.
+Finally write a second command doing the same thing into `/opt/course/1/context_default_no_kubectl.sh`, but without the use of `kubectl`.
 
  
 
@@ -90,11 +90,11 @@ Task weight: 3%
 
  
 
-Use context: ``` kubectl config use-context k8s-c1-H ```
+Use context: `kubectl config use-context k8s-c1-H`
 
  
 
-Create a single Pod of image ```httpd:2.4.41-alpine``` in Namespace ```default```. The Pod should be named ```pod1``` and the container should be named ```pod1-container```. This Pod should only be scheduled on a master node, do not add new labels any nodes.
+Create a single Pod of image `httpd:2.4.41-alpine` in Namespace `default`. The Pod should be named `pod1` and the container should be named `pod1-container`. This Pod should only be scheduled on a master node, do not add new labels any nodes.
 
  
 
@@ -166,11 +166,11 @@ Task weight: 1%
 
  
 
-Use context: ```kubectl config use-context k8s-c1-H```
+Use context: `kubectl config use-context k8s-c1-H`
 
  
 
-There are two Pods named ```o3db-*``` in Namespace ```project-c13```. C13 management asked you to scale the Pods down to one replica to save resources.
+There are two Pods named `o3db-*` in Namespace `project-c13`. C13 management asked you to scale the Pods down to one replica to save resources.
 
  
 
@@ -209,13 +209,13 @@ Task weight: 4%
 
  
 
-Use context: ```kubectl config use-context k8s-c1-H```
+Use context: `kubectl config use-context k8s-c1-H`
 
  
 
-Do the following in Namespace default. Create a single Pod named ready-if-service-ready of image ```nginx:1.16.1-alpine```. Configure a LivenessProbe which simply runs true. Also configure a ReadinessProbe which does check if the url ```http://service-am-i-ready:80``` is reachable, you can use ``wget -T2 -O- http://service-am-i-ready:80``` for this. Start the Pod and confirm it isn't ready because of the ReadinessProbe.
+Do the following in Namespace default. Create a single Pod named ready-if-service-ready of image `nginx:1.16.1-alpine`. Configure a LivenessProbe which simply runs true. Also configure a ReadinessProbe which does check if the url `http://service-am-i-ready:80` is reachable, you can use `wget -T2 -O- http://service-am-i-ready:80` for this. Start the Pod and confirm it isn't ready because of the ReadinessProbe.
 
-Create a second Pod named ``am-i-ready``` of image ```nginx:1.16.1-alpine``` with label id: ```cross-server-ready```. The already existing Service ```service-am-i-ready``` should now have that second Pod as endpoint.
+Create a second Pod named `am-i-ready` of image `nginx:1.16.1-alpine` with label id: `cross-server-ready`. The already existing Service `service-am-i-ready` should now have that second Pod as endpoint.
 
 Now the first Pod should be in ready state, confirm that.
 
@@ -296,28 +296,29 @@ Look at these Pods coworking together!
 
  
 
-Question 5 | Kubectl sorting
+###Question 5 | Kubectl sorting
 Task weight: 1%
 
  
 
-Use context: kubectl config use-context k8s-c1-H
+Use context: `kubectl config use-context k8s-c1-H`
 
  
 
-There are various Pods in all namespaces. Write a command into /opt/course/5/find_pods.sh which lists all Pods sorted by their AGE (metadata.creationTimestamp).
+There are various Pods in all namespaces. Write a command into `/opt/course/5/find_pods.sh` which lists all Pods sorted by their AGE `(metadata.creationTimestamp)`.
 
-Write a second command into /opt/course/5/find_pods_uid.sh which lists all Pods sorted by field metadata.uid. Use kubectl sorting for both commands.
+Write a second command into `/opt/course/5/find_pods_uid.sh` which lists all Pods sorted by field `metadata.uid`. Use kubectl sorting for both commands.
 
  
 
-Answer:
+### Answer:
 A good resources here (and for many other things) is the kubectl-cheat-sheet. You can reach it fast when searching for "cheat sheet" in the Kubernetes docs.
-
+```
 # /opt/course/5/find_pods.sh
 kubectl get pod -A --sort-by=.metadata.creationTimestamp
+``
 And to execute:
-
+```
 ➜ sh /opt/course/5/find_pods.sh
 NAMESPACE         NAME                                       ...          AGE
 kube-system       kube-scheduler-cluster1-master1            ...          63m
@@ -325,32 +326,34 @@ kube-system       etcd-cluster1-master1                      ...          63m
 kube-system       kube-apiserver-cluster1-master1            ...          63m
 kube-system       kube-controller-manager-cluster1-master1   ...          63m
 ...
+```
 For the second command:
 
+```
 # /opt/course/5/find_pods_uid.sh
 kubectl get pod -A --sort-by=.metadata.uid
+```
 And to execute:
 
+```
 ➜ sh /opt/course/5/find_pods_uid.sh
 NAMESPACE         NAME                                      ...          AGE
 kube-system       coredns-5644d7b6d9-vwm7g                  ...          68m
 project-c13       c13-3cc-runner-heavy-5486d76dd4-ddvlt     ...          63m
 project-hamster   web-hamster-shop-849966f479-278vp         ...          63m
 project-c13       c13-3cc-web-646b6c8756-qsg4b              ...          63m
+``` 
  
-
- 
-
-Question 6 | Storage, PV, PVC, Pod volume
+### Question 6 | Storage, PV, PVC, Pod volume
 Task weight: 8%
 
  
 
-Use context: kubectl config use-context k8s-c1-H
+Use context: `kubectl config use-context k8s-c1-H`
 
  
 
-Create a new PersistentVolume named safari-pv. It should have a capacity of 2Gi, accessMode ReadWriteOnce, hostPath /Volumes/Data and no storageClassName defined.
+Create a new PersistentVolume named `safari-pv`. It should have a capacity of 2Gi, accessMode ReadWriteOnce, hostPath /Volumes/Data and no storageClassName defined.
 
 Next create a new PersistentVolumeClaim in Namespace project-tiger named safari-pvc . It should request 2Gi storage, accessMode ReadWriteOnce and should not define a storageClassName. The PVC should bound to the PV correctly.
 
