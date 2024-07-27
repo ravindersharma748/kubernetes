@@ -842,7 +842,7 @@ Done.
 
  
 
-Question 11 | DaemonSet on all Nodes
+### Question 11 | DaemonSet on all Nodes
 Task weight: 4%
 
  
@@ -855,7 +855,7 @@ Use Namespace project-tiger for the following. Create a DaemonSet named ds-impor
 
  
 
-Answer:
+### Answer:
 As of now we aren't able to create a DaemonSet directly using kubectl, so we create a Deployment and just change it up:
 
 k -n project-tiger create deployment --image=httpd:2.4-alpine ds-important $do > 11.yaml
@@ -925,7 +925,7 @@ ds-important-qhjcq        1/1     Running   ...   cluster1-worker2
 
  
 
-Question 12 | Deployment on all Nodes
+### Question 12 | Deployment on all Nodes
 Task weight: 6%
 
  
@@ -942,7 +942,7 @@ In a way we kind of simulate the behaviour of a DaemonSet here, but using a Depl
 
  
 
-Answer:
+### Answer:
 There are two possible ways, one using podAntiAffinity and one using topologySpreadConstraint.
 
  
@@ -1066,7 +1066,7 @@ Warning  FailedScheduling  16s   default-scheduler  0/3 nodes are available: 1 n
 
  
 
-Question 13 | Multi Containers and Pod shared Volume
+### Question 13 | Multi Containers and Pod shared Volume
 Task weight: 4%
 
  
@@ -1087,7 +1087,7 @@ Check the logs of container c3 to confirm correct setup.
 
  
 
-Answer:
+### Answer:
 First we create the Pod template:
 
 k run multi-container-playground --image=nginx:1.17.6-alpine $do > 13.yaml
@@ -1158,7 +1158,7 @@ Sat Dec  7 16:05:16 UTC 2077
 
  
 
-Question 14 | Find out Cluster Information
+### Question 14 | Find out Cluster Information
 Task weight: 2%
 
  
@@ -1184,7 +1184,7 @@ Write your answers into file /opt/course/14/cluster-info, structured like this:
 5: [ANSWER]
  
 
-Answer:
+### Answer:
 How many master and worker nodes are available?
 ➜ k get node
 NAME               STATUS   ROLES    AGE   VERSION
@@ -1244,7 +1244,7 @@ The resulting /opt/course/14/cluster-info could look like:
 
  
 
-Question 15 | Cluster Event Logging
+### Question 15 | Cluster Event Logging
 Task weight: 3%
 
  
@@ -1263,7 +1263,7 @@ Do you notice differences in the events both actions caused?
 
  
 
-Answer:
+### Answer:
 # /opt/course/15/cluster_events.sh
 kubectl get events -A --sort-by=.metadata.creationTimestamp
 Now we kill the kube-proxy Pod:
@@ -1309,9 +1309,7 @@ Comparing the events we see that when we deleted the whole Pod there were more t
 
  
 
- 
-
-Question 16 | Namespaces and Api Resources
+### Question 16 | Namespaces and Api Resources
 Task weight: 2%
 
  
@@ -1328,7 +1326,7 @@ Find the project-* Namespace with the highest number of Roles defined in it and 
 
  
 
-Answer:
+### Answer:
 Namespace and Namespaces Resources
 We create a new Namespace:
 
@@ -1402,7 +1400,7 @@ project-c14 with 300 resources
 
  
 
-Question 17 | Find Container of Pod and check info
+### Question 17 | Find Container of Pod and check info
 Task weight: 3%
 
  
@@ -1419,7 +1417,7 @@ Write the ID of the container and the info.runtimeType into /opt/course/17/pod-c
 Write the logs of the container into /opt/course/17/pod-container.log
  
 
-Answer:
+### Answer:
 First we create the Pod:
 
 k -n project-tiger run tigers-reunite \
@@ -1460,7 +1458,7 @@ AH00558: httpd: Could not reliably determine the server's fully qualified domain
 
  
 
-Question 18 | Fix Kubelet
+### Question 18 | Fix Kubelet
 Task weight: 8%
 
  
@@ -1475,7 +1473,7 @@ Write the reason of the issue into /opt/course/18/reason.txt.
 
  
 
-Answer:
+### Answer:
 The procedure on tasks like these should be to check if the kubelet is running, if not start it, then check its logs and correct errors if there are some.
 
 Always helpful to check if other clusters already have some of the components defined and running, so you can copy and use existing config files. Though in this case it might not need to be necessary.
@@ -1548,7 +1546,7 @@ wrong path to kubelet binary specified in service config
 
  
 
-Question 19 | Create Secret and mount into Pod
+### Question 19 | Create Secret and mount into Pod
 Task weight: 3%
 
  
@@ -1571,7 +1569,7 @@ Confirm everything is working.
 
  
 
-Answer
+### Answer
 First we create the Namespace and the requested Secrets in it:
 
 k create ns secret
@@ -1669,12 +1667,8 @@ APP_USER=user1
 # Description:
 ...
 All is good.
-
  
-
- 
-
-Question 20 | Update Kubernetes Version and join cluster
+### Question 20 | Update Kubernetes Version and join cluster
 Task weight: 10%
 
  
@@ -1687,7 +1681,7 @@ Your coworker said node cluster3-worker2 is running an older Kubernetes version 
 
  
 
-Answer:
+### Answer:
 Upgrade Kubernetes to cluster3-master1 version
 Search in the docs for kubeadm upgrade: https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade
 
@@ -1832,12 +1826,9 @@ cluster3-master1   Ready      control-plane   23d     v1.24.1
 cluster3-worker1   Ready      <none>          23d     v1.24.1
 cluster3-worker2   Ready      <none>          2m24s   v1.24.1
 We see cluster3-worker2 is now available and up to date.
-
  
 
- 
-
-Question 21 | Create a Static Pod and Service
+### Question 21 | Create a Static Pod and Service
 Task weight: 2%
 
  
@@ -1851,8 +1842,7 @@ Create a Static Pod named my-static-pod in Namespace default on cluster3-master1
 Then create a NodePort Service named static-pod-service which exposes that static Pod on port 80 and check if it has Endpoints and if its reachable through the cluster3-master1 internal IP address. You can connect to the internal node IPs from your main terminal.
 
  
-
-Answer:
+### Answer:
 ➜ ssh cluster3-master1
 
 ➜ root@cluster1-master1:~# cd /etc/kubernetes/manifests/
@@ -1926,9 +1916,7 @@ Looking good.
 
  
 
- 
-
-Question 22 | Check how long certificates are valid
+### Question 22 | Check how long certificates are valid
 Task weight: 2%
 
  
@@ -1944,8 +1932,7 @@ Also run the correct kubeadm command to list the expiration dates and confirm bo
 Write the correct kubeadm command that would renew the apiserver server certificate into /opt/course/22/kubeadm-renew-certs.sh.
 
  
-
-Answer:
+### Answer:
 First let's find that certificate:
 
 ➜ ssh cluster2-master1
@@ -1981,7 +1968,7 @@ kubeadm certs renew apiserver
 
  
 
-Question 23 | Kubelet client/server cert info
+### Question 23 | Kubelet client/server cert info
 Task weight: 2%
 
  
@@ -2001,8 +1988,7 @@ Write the information into file /opt/course/23/certificate-info.txt.
 Compare the "Issuer" and "Extended Key Usage" fields of both certificates and make sense of these.
 
  
-
-Answer:
+### Answer:
 To find the correct kubelet certificate directory, we can look for the default value of the --cert-dir parameter for the kubelet. For this search for "kubelet" in the Kubernetes docs which will lead to: https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet. We can check if another certificate directory has been configured using ps aux or in /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.
 
 First we check the kubelet client certificate:
@@ -2029,9 +2015,7 @@ More about this: https://kubernetes.io/docs/reference/command-line-tools-referen
 
  
 
- 
-
-Question 24 | NetworkPolicy
+### Question 24 | NetworkPolicy
 Task weight: 9%
 
  
@@ -2052,7 +2036,7 @@ After implementation, connections from backend-* Pods to vault-* Pods on port 33
 
  
 
-Answer:
+### Answer:
 First we look at the existing Pods and their labels:
 
 ➜ k -n project-snake get pod
@@ -2184,9 +2168,7 @@ Great, looking more secure. Task done.
 
  
 
- 
-
-Question 25 | Etcd Snapshot Save and Restore
+### Question 25 | Etcd Snapshot Save and Restore
 Task weight: 8%
 
  
@@ -2202,8 +2184,7 @@ Then create a Pod of your kind in the cluster.
 Finally restore the backup, confirm the cluster is still working and that the created Pod is no longer with us.
 
  
-
-Answer:
+### Answer:
 Etcd Backup
 First we log into the master and try to create a snapshop of etcd:
 
@@ -2374,18 +2355,15 @@ Awesome, backup and restore worked as our pod is gone.
 
  
 
- 
-
-Extra Question 1 | Find Pods first to be terminated
+### Extra Question 1 | Find Pods first to be terminated
 Use context: kubectl config use-context k8s-c1-H
 
- 
 
 Check all available Pods in the Namespace project-c13 and find the names of those that would probably be terminated first if the nodes run out of resources (cpu or memory) to schedule all Pods. Write the Pod names into /opt/course/e1/pods-not-stable.txt.
 
  
 
-Answer:
+### Answer:
 When available cpu or memory resources on the nodes reach their limit, Kubernetes will look for Pods that are using more resources than they requested. These will be the first candidates for termination. If some Pods containers have no resource requests/limits set, then by default those are considered to use more than requested.
 
 Kubernetes assigns Quality of Service classes to Pods based on the defined resources and limits, read more here: https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod
@@ -2463,21 +2441,17 @@ Here we see three with BestEffort, which Pods get that don't have any memory or 
 A good practice is to always set resource requests and limits. If you don't know the values your containers should have you can find this out using metric tools like Prometheus. You can also use kubectl top pod or even kubectl exec into the container and use top and similar tools.
 
  
-
- 
-
-Extra Question 2 | Curl Manually Contact API
+### Extra Question 2 | Curl Manually Contact API
 Use context: kubectl config use-context k8s-c1-H
 
  
-
 There is an existing ServiceAccount secret-reader in Namespace project-hamster. Create a Pod of image curlimages/curl:7.65.3 named tmp-api-contact which uses this ServiceAccount. Make sure the container keeps running.
 
 Exec into the Pod and use curl to access the Kubernetes Api of that cluster manually, listing all available secrets. You can ignore insecure https connection. Write the command(s) for this into file /opt/course/e4/list-secrets.sh.
 
  
 
-Answer:
+### Answer:
 https://kubernetes.io/docs/tasks/run-application/access-api-from-pod
 
 It's important to understand how the Kubernetes API works. For this it helps connecting to the api manually, for example using curl. You can find information fast by search in the Kubernetes docs for "curl api" for example.
